@@ -10,17 +10,35 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    full_name = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True)
+    favorite_genre = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'full_name', 'phone', 'favorite_genre']
 
     def create(self, validated_data):
+
+        full_name = validated_data.pop('full_name')
+        phone = validated_data.pop('phone')
+        favorite_genre = validated_data.pop('favorite_genre', '')
+
+
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
+
+        # Create the profile
+        Profile.objects.create(
+            user=user,
+            full_name=full_name,
+            phone=phone,
+            favorite_genre=favorite_genre
+        )
+
         return user
 
 class ProfileSerializer(serializers.ModelSerializer):
