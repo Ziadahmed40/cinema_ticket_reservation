@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Movie(models.Model):
     title = models.CharField(max_length=100)
@@ -47,3 +49,12 @@ class Profile(models.Model):
 class UserRole(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
+
+@receiver(post_save, sender=Showtime)
+def create_seats_for_showtime(sender, instance, created, **kwargs):
+    if created and not Seat.objects.filter(showtime=instance).exists():
+        rows = 'ABCDEFGHIJ'  # 10 rows
+        seats_per_row = 10  # 10 seats per row
+        for row in rows:
+            for num in range(1, seats_per_row + 1):
+                Seat.objects.create(showtime=instance, row=row, number=num)

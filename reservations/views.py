@@ -1,5 +1,5 @@
-from datetime import datetime
 
+from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -110,7 +110,7 @@ class UserRegistration(APIView):
 class AvailableShowtimes(APIView):
     def get(self, request, movie_id):
         try:
-            current_time = datetime.now()
+            current_time =  timezone.now()
             start_date = request.query_params.get('start_date')
             end_date = request.query_params.get('end_date')
             genre = request.query_params.get('genre')
